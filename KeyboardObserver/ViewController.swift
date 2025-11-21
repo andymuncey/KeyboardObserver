@@ -31,10 +31,19 @@ class ViewController: UIViewController {
     }
     
     @objc func keyboardWillShow(_ notification: Notification){
-        //get height of keyboard and offset view by it
-        if let frame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
-            view.frame.origin.y = -frame.height
-        }
+        
+        guard
+                let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
+                let activeView = view.currentFirstResponder as? UITextField
+            else { return }
+
+            let frameInView = activeView.convert(activeView.bounds, to: view)
+            let topOfKeyboard = view.frame.height - keyboardFrame.height
+
+            if frameInView.maxY > topOfKeyboard {
+                view.frame.origin.y = -(frameInView.maxY - topOfKeyboard + 10)
+            }
+
     }
     
     @objc func keyboardWillHide(_ notification: Notification){
@@ -44,3 +53,22 @@ class ViewController: UIViewController {
     
 }
 
+
+
+extension UIView {
+    
+    /**
+     Finds the view with focus (i.e. where the user is interacting)
+     */
+    var currentFirstResponder: UIView? {
+        if self.isFirstResponder {
+            return self
+        }
+        for subview in subviews {
+            if let responder = subview.currentFirstResponder {
+                return responder
+            }
+        }
+        return nil
+    }
+}
