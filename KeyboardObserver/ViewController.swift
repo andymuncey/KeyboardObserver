@@ -32,12 +32,12 @@ class ViewController: UIViewController {
         view.endEditing(true)
     }
     
-    private func move(view activeView: UITextField, by keyboardFrame: CGRect) {
-        let frameInView = activeView.convert(activeView.bounds, to: view)
-        let topOfKeyboard = view.frame.height - keyboardFrame.height
+    private func ensureVisible(view: UITextField, obscuredHeight: CGFloat) {
+        let frameInView = view.convert(view.bounds, to: self.view)
+        let requiredOffset = self.view.frame.height - obscuredHeight
         
-        if frameInView.maxY > topOfKeyboard {
-            view.frame.origin.y = -(frameInView.maxY - topOfKeyboard + 10)
+        if frameInView.maxY > requiredOffset {
+            self.view.frame.origin.y = -(frameInView.maxY - requiredOffset + 10)
         }
     }
     
@@ -48,7 +48,7 @@ class ViewController: UIViewController {
             let activeView = view.currentFirstResponder as? UITextField
             else { return }
 
-        move(view: activeView, by: keyboardFrame)
+        ensureVisible(view: activeView, obscuredHeight: keyboardFrame.height)
 
     }
     
